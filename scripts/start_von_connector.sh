@@ -19,12 +19,12 @@ fi
 
 echo generate_indy_pool_transactions \
     --nodes 4 \
-    --clients 1 \
+    --clients 0 \
     --ips $IP1,$IP2,$IP3,$IP4
 
 generate_indy_pool_transactions \
     --nodes 4 \
-    --clients 1 \
+    --clients 0 \
     --ips "$IP1",$IP2,$IP3,$IP4
 
 # Install pipenv
@@ -36,3 +36,4 @@ pipenv --three
 # release but it isn't working... Using latest dev build (244)
 pipenv install python3-indy==1.0.1-dev-244
 pipenv run python ./von-connector/main.py
+pipenv shell

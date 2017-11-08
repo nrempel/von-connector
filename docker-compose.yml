@@ -7,30 +7,10 @@ services:
   von_connector:
     build: .
     command: 'bash -c ''./scripts/start_von_connector.sh'''
-    
-  # 
-  # Client
-  # 
-  client:
-    build: .
-    command: 'bash -c ''./scripts/start_client.sh'''
+    volumes:
+      - ./connector:/mnt
+    networks:
+      - von
 
-  # 
-  # Nodes
-  # 
-  node1:
-    build: .
-    command: 'bash -c ''./scripts/start_node.sh 1'''
-    
-  node2:
-    build: .
-    command: 'bash -c ''./scripts/start_node.sh 2'''
-
-  node3:
-    build: .
-    command: 'bash -c ''./scripts/start_node.sh 3'''
-    
-  node4:
-    build: .
-    command: 'bash -c ''./scripts/start_node.sh 4'''
-    
+networks:
+  von:
