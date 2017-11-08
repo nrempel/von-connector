@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from von_agent.nodepool import NodePool
+from von_agent.service_wrapper_project.wrapper_api.agent.nodepool import NodePool
 
 import asyncio
 
