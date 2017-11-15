@@ -3,9 +3,9 @@ FROM ubuntu:16.04
 ARG uid=1000
 ARG indy_stream=master
 
-ARG indy_plenum_ver=1.1.143
+ARG indy_plenum_ver=1.2.165
 ARG indy_anoncreds_ver=1.0.32
-ARG indy_node_ver=1.1.159
+ARG indy_node_ver=1.2.198
 ARG python3_indy_crypto_ver=0.1.6
 ARG indy_crypto_ver=0.1.6
 

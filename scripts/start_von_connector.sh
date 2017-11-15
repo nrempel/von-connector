@@ -32,8 +32,6 @@ pip3 install --user pipenv
 
 pipenv --three
 
-# `pipenv install --pre python3-indy` should install latest dev
-# release but it isn't working... Using latest dev build (244)
-pipenv install python3-indy==1.0.1-dev-244
-pipenv run python ./von-connector/main.py
+pipenv install python3-indy von-agent
+# pipenv run python ./von-connector/main.py
 pipenv shell
