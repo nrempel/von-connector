@@ -37,14 +37,12 @@ WORKDIR /home/indy
 ADD --chown=indy:indy ./scripts /home/indy/scripts
 
 # Add our python scripts
-ADD --chown=indy:indy ./connector /home/indy/von-connector
-
+# ADD --chown=indy:indy ./connector /home/indy/von-connector
 
 # Install pipenv
 RUN pip3 install --user pipenv
-
 ENV PATH "$PATH:/home/indy/.local/bin"
 
-RUN pipenv --three
+# RUN pipenv --three
 
-RUN pipenv install python3-indy von-agent
+# RUN pipenv install python3-indy von-agent

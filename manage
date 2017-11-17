@@ -12,7 +12,14 @@ case "$1" in
       if [ -z "$2" ]; then
         docker-compose run von_connector
       else
-        docker-compose run -e IP=$2 von_connector
+        docker-compose run -e IP="$2" von_connector
+      fi
+    ;;
+  bootstrap)
+      if [ -z "$2" ]; then
+        docker-compose run bootstrap
+      else
+        docker-compose run -e IP="$2" bootstrap
       fi
     ;;
   stop)
@@ -26,7 +33,6 @@ case "$1" in
     ;;
   *)
     echo $"Usage: $0 {start|stop|build|rebuild}"
-    RETVAL=1
 esac
 
-cd - > /dev/null
+( cd - ) > /dev/null

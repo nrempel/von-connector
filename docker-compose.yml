@@ -2,13 +2,24 @@ version: '3'
 services:
 
   # 
+  # Bootstrapper
+  # 
+  bootstrap:
+    build: .
+    command: 'bash -c ''./scripts/bootstrap.sh'''
+    volumes:
+      - ./trustanchor:/home/indy/trustanchor
+    networks:
+      - von
+
+  # 
   # VON Connector
   # 
   von_connector:
     build: .
     command: 'bash -c ''./scripts/start_von_connector.sh'''
     volumes:
-      - ./connector:/mnt
+      - ./bcregistry:/home/indy/bcregistry
     networks:
       - von
 
