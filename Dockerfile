@@ -3,9 +3,9 @@ FROM ubuntu:16.04
 ARG uid=1000
 ARG indy_stream=master
 
-ARG indy_plenum_ver=1.2.165
+ARG indy_plenum_ver=1.2.171
 ARG indy_anoncreds_ver=1.0.32
-ARG indy_node_ver=1.2.198
+ARG indy_node_ver=1.2.210
 ARG python3_indy_crypto_ver=0.1.6
 ARG indy_crypto_ver=0.1.6
 
@@ -57,6 +57,8 @@ RUN curl -o rustup https://sh.rustup.rs
 RUN chmod +x rustup
 RUN ./rustup -y
 
+RUN echo "blarg"
+
 # Build libindy
 RUN git clone https://github.com/hyperledger/indy-sdk.git
 WORKDIR /home/indy/indy-sdk/libindy
@@ -74,3 +76,13 @@ ADD --chown=indy:indy ./scripts /home/indy/scripts
 
 # Add our python scripts
 ADD --chown=indy:indy ./connector /home/indy/von-connector
+
+
+# Install pipenv
+RUN pip3 install --user pipenv
+
+ENV PATH "$PATH:/home/indy/.local/bin"
+
+RUN pipenv --three
+
+RUN pipenv install python3-indy von-agent

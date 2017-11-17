@@ -9,7 +9,11 @@ cd "$SCRIPT_HOME"
 
 case "$1" in
   start)
-      docker-compose run von_connector
+      if [ -z "$2" ]; then
+        docker-compose run von_connector
+      else
+        docker-compose run -e IP=$2 von_connector
+      fi
     ;;
   stop)
       docker-compose stop

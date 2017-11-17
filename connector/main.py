@@ -27,7 +27,7 @@ async def main():
     # Open pool
     print('\n\nOpen pool\n\n')
 
-    pool = NodePool('test', '.indy-cli/networks/sandbox/pool_transactions_sandbox_genesis')
+    pool = NodePool('test', '.indy-cli/networks/sandbox/pool_transactions_genesis')
     await pool.open()
 
     # Instantiate agents
