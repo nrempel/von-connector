@@ -27,10 +27,9 @@ VORG_SCHEMA = {
 
 
 async def main():
-    url = os.environ["TOB_URL"]
-    print(url)
-    r = requests.get(url)
-    print(r)
+    base_url = os.environ["TOB_URL"]
+    r = requests.post(base_url + '/get-claim-request', json={'did': 'a', 'claim_def': 'b'})
+    print(r.text)
 
     # # Open pool
     # print('\n\nOpen pool\n\n')
