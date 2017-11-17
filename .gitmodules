@@ -1,3 +1,0 @@
-[submodule "connector/von_agent"]
-	path = connector/von_agent
-	url = git@github.com:PSPC-SPAC-buyandsell/demo-agent.git

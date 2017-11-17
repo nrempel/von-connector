@@ -11,8 +11,6 @@ services:
       - ./connector:/mnt
     networks:
       - von
-    external_links:
-      - node1
 
 networks:
   von:
