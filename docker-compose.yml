@@ -13,13 +13,28 @@ services:
       - von
 
   # 
-  # VON Connector
+  # BC Registry
   # 
-  von_connector:
+  bcregistry_make_claim:
     build: .
-    command: 'bash -c ''./scripts/start_von_connector.sh'''
+    command: 'bash -c ''./scripts/bcregistry_make_claim.sh'''
+    environment:
+      TOB_URL: 'http://the_org_book:8000/'
     volumes:
       - ./bcregistry:/home/indy/bcregistry
+    networks:
+      - von
+    links:
+      - the_org_book
+
+  # 
+  # The ORG book test API
+  # 
+  the_org_book:
+    build: .
+    command: 'bash -c ''./scripts/start_the_org_book.sh'''
+    volumes:
+      - ./theorgbook:/home/indy/theorgbook
     networks:
       - von
 

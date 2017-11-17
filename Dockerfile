@@ -33,15 +33,17 @@ RUN mv target/debug/libindy.so /usr/lib
 USER indy
 WORKDIR /home/indy
 
-# Add our startup scripts
-ADD --chown=indy:indy ./scripts /home/indy/scripts
-
 # Add our python scripts
 # ADD --chown=indy:indy ./connector /home/indy/von-connector
 
 # Install pipenv
 RUN pip3 install --user pipenv
 ENV PATH "$PATH:/home/indy/.local/bin"
+
+
+# Add our startup scripts
+ADD --chown=indy:indy ./scripts /home/indy/scripts
+
 
 # RUN pipenv --three
 
