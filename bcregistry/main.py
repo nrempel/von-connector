@@ -2,12 +2,17 @@
 
 from von_agent.nodepool import NodePool
 from von_agent.demo_agents import TrustAnchorAgent, SRIAgent, OrgBookAgent, BCRegistrarAgent
+from von_agent.util import encode
 
 import requests
 
 import asyncio
 import json
 import os
+
+
+def claim_value_pair(plain):
+    return [str(plain), encode(plain)]
 
 
 VORG_SCHEMA = {
@@ -24,6 +29,39 @@ VORG_SCHEMA = {
         'sriRegDate'
     ]
 }
+
+CLAIMS = [
+    {
+        'id': claim_value_pair('1'),
+        'busId': claim_value_pair('11121398'),
+        'orgTypeId': claim_value_pair('2'),
+        'jurisdictionId': claim_value_pair('1'),
+        'LegalName': claim_value_pair('The Original House of Pies'),
+        'effectiveDate': claim_value_pair('2010-10-10'),
+        'endDate': claim_value_pair(None),
+        'sriRegDate': claim_value_pair(None)
+    },
+    {
+        'id': claim_value_pair('2'),
+        'busId': claim_value_pair('11133333'),
+        'orgTypeId': claim_value_pair('1'),
+        'jurisdictionId': claim_value_pair('1'),
+        'LegalName': claim_value_pair('Planet Cake'),
+        'effectiveDate': claim_value_pair('2011-10-01'),
+        'endDate': claim_value_pair(None),
+        'sriRegDate': claim_value_pair(None)
+    },
+    {
+        'id': claim_value_pair('3'),
+        'busId': claim_value_pair('11144444'),
+        'orgTypeId': claim_value_pair('2'),
+        'jurisdictionId': claim_value_pair('1'),
+        'LegalName': claim_value_pair('Tart City'),
+        'effectiveDate': claim_value_pair('2012-12-01'),
+        'endDate': claim_value_pair(None),
+        'sriRegDate': claim_value_pair(None)
+    }
+]
 
 
 async def main():
@@ -105,8 +143,16 @@ async def main():
         }
     )
 
-    print(r.text)
+    claim_req_json = r.json()
 
+    for c in CLAIMS:
+        (_, claim_json) = await bcrag.create_claim(claim_req_json, c)
+        r = requests.post(
+            base_url + '/store-claim',
+            json=json.loads(claim_json)
+        )
+
+        print(r.text)
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

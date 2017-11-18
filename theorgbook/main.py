@@ -3,6 +3,7 @@
 import asyncio
 import calendar
 import time
+import json
 
 from sanic import Sanic
 from sanic.response import json
@@ -42,17 +43,37 @@ async def get_claim_request(request):
     seqNo = request.json['seqNo']
     claim_def_json = request.json['claim_def']
 
-    print(obag)
-
     await obag.store_claim_offer(did, seqNo)
     claim_req_json = await obag.store_claim_req(did, claim_def_json)
+    await pool.close()
 
     return json(claim_req_json)
 
 
-@app.route("/store-claim")
+@app.route("/store-claim", methods=['POST'])
 async def store_claim(request):
-    return json({"hello": "world"})
+    pool = NodePool(
+        # Hack to use different pool names. Agent lib doesn't support
+        # reopening existing pool config
+        'theorgbook' + str(calendar.timegm(time.gmtime())),
+        '/home/indy/.indy-cli/networks/sandbox/pool_transactions_genesis')
+    await pool.open()
+
+    obag = OrgBookAgent(
+        pool,
+        'The-Org-Book-Agent-0000000000000',
+        'the-org-book-agent-wallet',
+        None,
+        '127.0.0.1',
+        9702,
+        'api/v0')
+    await obag.open()
+    await obag.create_master_secret('secret')
+
+    await obag.store_claim(json.dumps(request.json))
+    await pool.close()
+
+    return json({'success': True})
 
 
 if __name__ == '__main__':
