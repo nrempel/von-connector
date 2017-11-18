@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import asyncio
+import calendar
+import time
 
 from sanic import Sanic
 from sanic.response import json
@@ -9,13 +11,19 @@ from von_agent.demo_agents import TrustAnchorAgent, SRIAgent, OrgBookAgent, BCRe
 
 app = Sanic(__name__)
 
-pool = None
-obag = None
+
+@app.route("/")
+async def test(request):
+    return json({"hello": "world"})
 
 
-async def boot():
+@app.route("/get-claim-request", methods=['POST'])
+async def get_claim_request(request):
+
     pool = NodePool(
-        'theorgbook',
+        # Hack to use different pool names. Agent lib doesn't support
+        # reopening existing pool config
+        'theorgbook' + str(calendar.timegm(time.gmtime())),
         '/home/indy/.indy-cli/networks/sandbox/pool_transactions_genesis')
     await pool.open()
 
@@ -30,15 +38,16 @@ async def boot():
     await obag.open()
     await obag.create_master_secret('secret')
 
+    did = request.json['did']
+    seqNo = request.json['seqNo']
+    claim_def_json = request.json['claim_def']
 
-@app.route("/")
-async def test(request):
-    return json({"hello": "world"})
+    print(obag)
 
+    await obag.store_claim_offer(did, seqNo)
+    claim_req_json = await obag.store_claim_req(did, claim_def_json)
 
-@app.route("/get-claim-request", methods=['POST'])
-async def get_claim_request(request):
-    return json({"received": True, "message": request.json})
+    return json(claim_req_json)
 
 
 @app.route("/store-claim")
@@ -47,7 +56,4 @@ async def store_claim(request):
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(boot())
-    loop.close()
     app.run(host="0.0.0.0", port=8000, debug=True)
