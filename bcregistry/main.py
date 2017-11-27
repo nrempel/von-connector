@@ -134,8 +134,10 @@ async def main():
     print('-==--=-=---=')
 
     base_url = os.environ["TOB_URL"]
+
+    
     r = requests.post(
-        base_url + '/get-claim-request',
+        base_url + '/bcovrin/generate-claim-request',
         json={
             'did': bcrag.did,
             'seqNo': schema['seqNo'],
@@ -143,12 +145,14 @@ async def main():
         }
     )
 
+    print(r.text)
+
     claim_req_json = r.json()
 
     for c in CLAIMS:
-        (_, claim_json) = await bcrag.create_claim(claim_req_json, c)
+        (_, claim_json) = await bcrag.create_claim(json.dumps(claim_req_json), c)
         r = requests.post(
-            base_url + '/store-claim',
+            base_url + '/bcovrin/store-claim',
             json=json.loads(claim_json)
         )
 

@@ -2,41 +2,15 @@ version: '3'
 services:
 
   # 
-  # Bootstrapper
-  # 
-  bootstrap:
-    build: .
-    command: 'bash -c ''./scripts/bootstrap.sh'''
-    volumes:
-      - ./trustanchor:/home/indy/trustanchor
-    networks:
-      - von
-
-  # 
   # BC Registry
   # 
-  bcregistry_make_claim:
+  bcregistry:
     build: .
-    command: 'bash -c ''./scripts/bcregistry_make_claim.sh'''
+    command: 'bash -c ''./scripts/bcregistry.sh'''
     environment:
-      TOB_URL: 'http://the_org_book:8000'
+      TOB_URL: 'http://192.168.65.1/api/v1'
     volumes:
       - ./bcregistry:/home/indy/bcregistry
-    networks:
-      - von
-    links:
-      - the_org_book
-
-  # 
-  # The ORG book test API
-  # 
-  the_org_book:
-    build: .
-    command: 'bash -c ''./scripts/start_the_org_book.sh'''
-    volumes:
-      - ./theorgbook:/home/indy/theorgbook
-    networks:
-      - von
 
 networks:
   von:

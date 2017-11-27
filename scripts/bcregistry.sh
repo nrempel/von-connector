@@ -7,7 +7,9 @@ else
     von_generate_transactions -i "$IP"
 fi
 
-cd theorgbook
+cd bcregistry
+
+cat /home/indy/.indy-cli/networks/sandbox/pool_transactions_genesis
 
 pipenv install
 pipenv run python main.py

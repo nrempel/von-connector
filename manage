@@ -10,16 +10,9 @@ cd "$SCRIPT_HOME"
 case "$1" in
   start)
       if [ -z "$2" ]; then
-        docker-compose run bcregistry_make_claim
+        docker-compose run bcregistry
       else
-        docker-compose run -e IP="$2" bcregistry_make_claim
-      fi
-    ;;
-  bootstrap)
-      if [ -z "$2" ]; then
-        docker-compose run bootstrap
-      else
-        docker-compose run -e IP="$2" bootstrap
+        docker-compose run -e IP="$2" bcregistry
       fi
     ;;
   stop)
