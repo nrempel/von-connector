@@ -1,7 +1,5 @@
 FROM von-base
 
-USER root
-
 # Install pipenv
 RUN pip3 install --user pipenv
 ENV PATH "$PATH:/home/indy/.local/bin"

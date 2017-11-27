@@ -9,8 +9,6 @@ fi
 
 cd bcregistry
 
-cat /home/indy/.indy-cli/networks/sandbox/pool_transactions_genesis
-
 pipenv install
-pipenv run python main.py
+pipenv run python server.py
 # pipenv shell
