@@ -7,6 +7,27 @@
   <link rel="stylesheet" href="">
 </head>
 <body>
-  test
+  <h1>Submit BC Registry Claims</h1>
+  <a href="/test_data.csv">Download test csv</a>
+  <h2>
+    Upload a CSV containing your claims:
+  </h2>
+  <form enctype='multipart/form-data' action="submit_claims" method="post">
+    <input type="file" accept=".csv" name="file" required>
+    <br>
+    <input type="submit" name="" value="Submit"> (this may take 10-20 seconds)
+  </form>
+  <h2>
+    Or enter a claim manually:
+  </h2>
+  <form action="submit_claim" method="post">
+    <input type="text" name="busId" placeholder="ID" required><br>
+    <input type="text" name="orgTypeId" placeholder="Organization type ID" required><br>
+    <input type="text" name="jurisdictionId" placeholder="Jurisdiction ID" required><br>
+    <input type="text" name="LegalName" placeholder="Legal Name" required><br>
+    <input type="text" name="effectiveDate" placeholder="Effective Date" required><br>
+    <input type="text" name="endDate" placeholder="End Date" required><br>
+    <input type="submit">
+  </form>
 </body>
 </html>

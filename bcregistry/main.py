@@ -134,8 +134,6 @@ async def main():
     print('-==--=-=---=')
 
     base_url = os.environ["TOB_URL"]
-
-    
     r = requests.post(
         base_url + '/bcovrin/generate-claim-request',
         json={

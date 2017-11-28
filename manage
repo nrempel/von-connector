@@ -9,11 +9,7 @@ cd "$SCRIPT_HOME"
 
 case "$1" in
   start)
-      if [ -z "$2" ]; then
-        docker-compose run bcregistry
-      else
-        docker-compose run -e IP="$2" bcregistry
-      fi
+      docker-compose up bcregistry
     ;;
   stop)
       docker-compose stop

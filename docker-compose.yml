@@ -8,11 +8,13 @@ services:
     build: .
     command: 'bash -c ''./scripts/bcregistry.sh'''
     environment:
-      TOB_URL: 'http://192.168.65.1/api/v1'
+      TOB_URL: 'https://django-devex-von-dev.pathfinder.gov.bc.ca/api/v1'
     volumes:
       - ./bcregistry:/home/indy/bcregistry
     networks:
       - von
+    ports:
+      - 7000:7000
 
 networks:
   von:

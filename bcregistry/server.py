@@ -1,31 +1,41 @@
 #! /usr/bin/python3
 
 import asyncio
+import csv
+import os
 import json
+import logging
+
+import requests
+
+from io import StringIO
 
 from von_agent.nodepool import NodePool
 from von_agent.demo_agents import TrustAnchorAgent, BCRegistrarAgent
 from von_agent.agents import BaseAgent
+from von_agent.util import encode
 
 from sanic import Sanic
 from sanic.response import text
 
 app = Sanic(__name__)
-app.static('/', './html')
+app.static('/', './html/index.html')
+
+
+def claim_value_pair(plain):
+    return [str(plain), encode(plain)]
 
 
 VORG_SCHEMA = {
-    'name': 'supplier-registration',
+    'name': 'bc-corporate-registration',
     'version': '1.1',
     'attr_names': [
-        'id',
         'busId',
         'orgTypeId',
         'jurisdictionId',
         'LegalName',
         'effectiveDate',
-        'endDate',
-        'sriRegDate'
+        'endDate'
     ]
 }
 
@@ -33,11 +43,13 @@ VORG_SCHEMA = {
 async def boot():
     global pool
     global trust_anchor
+    global bcreg_agent
     global claim_def_json
+    global schema
 
     pool = NodePool(
         'nodepool',
-        '/home/indy/.indy-cli/networks/sandbox/pool_transactions_genesis')
+        '/home/indy/.genesis')
     await pool.open()
 
     trust_anchor = TrustAnchorAgent(
@@ -91,8 +103,54 @@ async def boot():
     await pool.close()
 
 
+@app.route("/hello")
+async def index(request):
+    return text('hello')
+
+
+@app.route("/submit_claims", methods=['POST'])
+async def submit_claims(request):
+    file = request.files.get('file')
+    base_url = os.environ["TOB_URL"]
+    r = requests.post(
+        base_url + '/bcovrin/generate-claim-request',
+        json={
+            'did': bcreg_agent.did,
+            'seqNo': schema['seqNo'],
+            'claim_def': claim_def_json
+        }
+    )
+    claim_req_json = r.json()
+
+    rows = csv.DictReader(StringIO(file.body.decode('utf-8')))
+    for row in rows:
+        claim = {
+            "busId": claim_value_pair(row["CORP_NUM"]),
+            "orgTypeId": claim_value_pair(row["CORP_NAME_TYP_CD"]),
+            "jurisdictionId": claim_value_pair(row["PHYSICALCITY"]),
+            "LegalName": claim_value_pair(row["CORP_NME"]),
+            "effectiveDate": claim_value_pair("2010-10-01"),
+            "endDate": claim_value_pair(None)
+        }
+
+        (_, claim_json) = await bcreg_agent.create_claim(json.dumps(claim_req_json), claim)
+        r = requests.post(
+            base_url + '/bcovrin/store-claim',
+            json=json.loads(claim_json)
+        )
+
+        print(r.text)
+
+    return text(file.body.decode('utf-8'))
+
+
+@app.route("/submit_claim", methods=['POST'])
+async def submit_claim(request):
+    return text(request.form)
+
+
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(boot())
     loop.close()
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=7000, debug=True)
