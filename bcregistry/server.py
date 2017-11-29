@@ -110,7 +110,66 @@ async def index(request):
 
 @app.route("/submit_claims", methods=['POST'])
 async def submit_claims(request):
+    resp_text = ""
     file = request.files.get('file')
+    base_url = os.environ["TOB_URL"]
+
+    resp_text += "Connect to TheOrgBook at %s...\n\n" % base_url
+
+    resp_text += "Sending claim definition to TheOrgBook...\n\n"
+
+    r = requests.post(
+        base_url + '/bcovrin/generate-claim-request',
+        json={
+            'did': bcreg_agent.did,
+            'seqNo': schema['seqNo'],
+            'claim_def': claim_def_json
+        }
+    )
+    claim_req_json = r.json()
+
+    resp_text += "Received claim request from TheOrgBook: \n\n%s\n\n" % claim_req_json
+
+    resp_text += "Parsing CSV...\n\n"
+
+    rows = csv.DictReader(StringIO(file.body.decode('utf-8')))
+    row_count = 0
+    for row in rows:
+        row_count += 1
+        resp_text += "Handling row of CSV data:\n\n%s\n\n" % row
+
+        claim = {
+            "busId": claim_value_pair(row["CORP_NUM"]),
+            "orgTypeId": claim_value_pair(row["CORP_NAME_TYP_CD"]),
+            "jurisdictionId": claim_value_pair(row["PHYSICALCITY"]),
+            "LegalName": claim_value_pair(row["CORP_NME"]),
+            "effectiveDate": claim_value_pair("2010-10-01"),
+            "endDate": claim_value_pair(None)
+        }
+        resp_text += "Generating claim for record and claim request...\n\n\n"
+        (_, claim_json) = await bcreg_agent.create_claim(json.dumps(claim_req_json), claim)
+        resp_text += "Successfully generated claim json:\n\n%s\n\n" % claim_json
+        resp_text += "Sending claim json to TheOrgBook...\n\n"
+        r = requests.post(
+            base_url + '/bcovrin/store-claim',
+            json=json.loads(claim_json)
+        )
+
+
+    resp_text += "Successfully sent %d claims to TheOrgBook." % row_count
+    return text(resp_text)
+
+
+@app.route("/submit_claim", methods=['POST'])
+async def submit_claim(request):
+    busId = request.form["busId"]
+    orgTypeId = request.form["orgTypeId"]
+    jurisdictionId = request.form["jurisdictionId"]
+    LegalName = request.form["LegalName"]
+
+    if not busId or not orgTypeId or not jurisdictionId or not LegalName:
+        return text("bad request, missing form fields", status=400)
+
     base_url = os.environ["TOB_URL"]
     r = requests.post(
         base_url + '/bcovrin/generate-claim-request',
@@ -122,31 +181,25 @@ async def submit_claims(request):
     )
     claim_req_json = r.json()
 
-    rows = csv.DictReader(StringIO(file.body.decode('utf-8')))
-    for row in rows:
-        claim = {
-            "busId": claim_value_pair(row["CORP_NUM"]),
-            "orgTypeId": claim_value_pair(row["CORP_NAME_TYP_CD"]),
-            "jurisdictionId": claim_value_pair(row["PHYSICALCITY"]),
-            "LegalName": claim_value_pair(row["CORP_NME"]),
-            "effectiveDate": claim_value_pair("2010-10-01"),
-            "endDate": claim_value_pair(None)
-        }
+    claim = {
+        "busId": claim_value_pair(busId),
+        "orgTypeId": claim_value_pair(orgTypeId),
+        "jurisdictionId": claim_value_pair(jurisdictionId),
+        "LegalName": claim_value_pair(LegalName),
+        "effectiveDate": claim_value_pair("2010-10-01"),
+        "endDate": claim_value_pair(None)
+    }
 
-        (_, claim_json) = await bcreg_agent.create_claim(json.dumps(claim_req_json), claim)
-        r = requests.post(
-            base_url + '/bcovrin/store-claim',
-            json=json.loads(claim_json)
-        )
+    (_, claim_json) = await bcreg_agent.create_claim(json.dumps(claim_req_json), claim)
+    r = requests.post(
+        base_url + '/bcovrin/store-claim',
+        json=json.loads(claim_json)
+    )
 
-        print(r.text)
+    resp_text = "Successfully generated payload and sent to TheOrgBook:\n\n%s"\
+        % claim_json
 
-    return text(file.body.decode('utf-8'))
-
-
-@app.route("/submit_claim", methods=['POST'])
-async def submit_claim(request):
-    return text(request.form)
+    return text(resp_text)
 
 
 if __name__ == '__main__':
