@@ -5,6 +5,7 @@ import csv
 import os
 import json
 import logging
+import time
 
 import requests
 
@@ -19,7 +20,11 @@ from sanic import Sanic
 from sanic.response import text
 
 app = Sanic(__name__)
-app.static('/', './html/index.html')
+db_settings = {'REQUEST_TIMEOUT': 3600}
+app.config.update(db_settings)
+
+app.static('/', './static/index.html')
+app.static('/test_data.csv', './static/test_data.csv')
 
 
 def claim_value_pair(plain):
@@ -154,6 +159,7 @@ async def submit_claims(request):
             base_url + '/bcovrin/store-claim',
             json=json.loads(claim_json)
         )
+        time.sleep(1)
 
 
     resp_text += "Successfully sent %d claims to TheOrgBook." % row_count
