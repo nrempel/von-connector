@@ -108,11 +108,6 @@ async def boot():
     await pool.close()
 
 
-@app.route("/hello")
-async def index(request):
-    return text('hello')
-
-
 @app.route("/submit_claims", methods=['POST'])
 async def submit_claims(request):
     resp_text = ""
@@ -168,10 +163,10 @@ async def submit_claims(request):
 
 @app.route("/submit_claim", methods=['POST'])
 async def submit_claim(request):
-    busId = request.form["busId"]
-    orgTypeId = request.form["orgTypeId"]
-    jurisdictionId = request.form["jurisdictionId"]
-    LegalName = request.form["LegalName"]
+    busId = request.form["busId"][0]
+    orgTypeId = request.form["orgTypeId"][0]
+    jurisdictionId = request.form["jurisdictionId"][0]
+    LegalName = request.form["LegalName"][0]
 
     if not busId or not orgTypeId or not jurisdictionId or not LegalName:
         return text("bad request, missing form fields", status=400)
