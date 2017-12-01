@@ -116,7 +116,7 @@ async def submit_claims(request):
 
     resp_text += "Connect to TheOrgBook at %s...\n\n" % base_url
 
-    resp_text += "Sending claim definition to TheOrgBook...\n\n"
+    resp_text += "Sending claim definition to TheOrgBook...\n\n%s\n\n" % claim_def_json
 
     r = requests.post(
         base_url + '/bcovrin/generate-claim-request',
@@ -163,6 +163,7 @@ async def submit_claims(request):
 
 @app.route("/submit_claim", methods=['POST'])
 async def submit_claim(request):
+    resp_text = ""
     busId = request.form["busId"][0]
     orgTypeId = request.form["orgTypeId"][0]
     jurisdictionId = request.form["jurisdictionId"][0]
@@ -172,6 +173,10 @@ async def submit_claim(request):
         return text("bad request, missing form fields", status=400)
 
     base_url = os.environ["TOB_URL"]
+
+    resp_text += "Connect to TheOrgBook at %s...\n\n" % base_url
+    resp_text += "Sending claim definition to TheOrgBook...\n\n%s\n\n" % claim_def_json
+
     r = requests.post(
         base_url + '/bcovrin/generate-claim-request',
         json={
@@ -182,6 +187,8 @@ async def submit_claim(request):
     )
     claim_req_json = r.json()
 
+    resp_text += "Received claim request from TheOrgBook: \n\n%s\n\n" % claim_req_json
+
     claim = {
         "busId": claim_value_pair(busId),
         "orgTypeId": claim_value_pair(orgTypeId),
@@ -191,15 +198,16 @@ async def submit_claim(request):
         "endDate": claim_value_pair(None)
     }
 
+    resp_text += "Generating claim for record and claim request...\n\n\n"
     (_, claim_json) = await bcreg_agent.create_claim(json.dumps(claim_req_json), claim)
+    resp_text += "Successfully generated claim json:\n\n%s\n\n" % claim_json
+    resp_text += "Sending claim json to TheOrgBook...\n\n"
     r = requests.post(
         base_url + '/bcovrin/store-claim',
         json=json.loads(claim_json)
     )
 
-    resp_text = "Successfully generated payload and sent to TheOrgBook:\n\n%s"\
-        % claim_json
-
+    resp_text += "Successfully sent claim to TheOrgBook."
     return text(resp_text)
 
 
