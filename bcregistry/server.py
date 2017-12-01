@@ -49,8 +49,6 @@ async def boot():
     global pool
     global trust_anchor
     global bcreg_agent
-    global claim_def_json
-    global schema
 
     pool = NodePool(
         'nodepool',
@@ -78,6 +76,10 @@ async def boot():
 
     await bcreg_agent.open()
 
+
+async def bootstrap():
+    global claim_def_json
+    global schema
     # Check if schema exists on ledger
     print('\n\nCheck if schema exists\n\n')
     schema_json = await trust_anchor.get_schema(
@@ -110,6 +112,7 @@ async def boot():
 
 @app.route("/submit_claims", methods=['POST'])
 async def submit_claims(request):
+    await bootstrap()
     resp_text = ""
     file = request.files.get('file')
     base_url = os.environ["TOB_URL"]
@@ -163,6 +166,7 @@ async def submit_claims(request):
 
 @app.route("/submit_claim", methods=['POST'])
 async def submit_claim(request):
+    await bootstrap()
     resp_text = ""
     busId = request.form["busId"][0]
     orgTypeId = request.form["orgTypeId"][0]
