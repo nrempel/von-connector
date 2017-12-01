@@ -107,7 +107,6 @@ async def bootstrap():
 
     # Close pool
     print('\n\nclose pool\n\n')
-    await pool.close()
 
 
 @app.route("/submit_claims", methods=['POST'])
@@ -158,7 +157,6 @@ async def submit_claims(request):
             json=json.loads(claim_json)
         )
         time.sleep(1)
-
 
     resp_text += "Successfully sent %d claims to TheOrgBook." % row_count
     return text(resp_text)
